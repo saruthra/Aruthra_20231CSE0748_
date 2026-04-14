@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrganicRec | 100% Certified Organic Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        body { background-color: #0c1412; color: #e2e8f0; font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; overflow-x: hidden; }
+        .organic-gradient { background: linear-gradient(135deg, #428a5f 0%, #234d35 100%); }
+        .card-bg { background-color: #16221f; border: 1px solid #243631; transition: all 0.3s ease; cursor: pointer; }
+        .card-bg:hover { border-color: #4ade80; transform: translateY(-4px); }
+        .accent-green { color: #4ade80; }
+        .btn-primary { background-color: #3e7a5d; transition: 0.2s; }
+        .btn-primary:hover { background-color: #4da37b; }
+        .hide { display: none !important; }
+        .category-pill { background: #1a2a26; border: 1px solid #2d3f3a; cursor: pointer; transition: 0.3s; white-space: nowrap; }
+        .category-pill.active { background: #4ade80; color: #0c1412; font-weight: 700; border-color: #4ade80; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .step-active { background-color: #3e7a5d; color: white; border: 1px solid #4ade8050; }
+        .step-inactive { background-color: #1a2a26; color: #64748b; }
+        input:focus { outline: none; border-color: #4ade80 !important; }
+        @keyframes slideIn { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast-animate { animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        .smart-basket-btn { background: linear-gradient(90deg, #428a5f, #eab308); color: white; font-weight: 700; }
+        .progress-bar-bg { background: rgba(255,255,255,0.05); height: 6px; border-radius: 3px; overflow: hidden; }
+        .progress-fill { background: #4ade80; height: 100%; border-radius: 3px; }
+        .eco-card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; text-align: center; flex: 1; }
+        .eco-value { font-size: 1.25rem; font-weight: 800; color: #fff; display: block; }
+        .eco-label { font-size: 0.65rem; color: #888; text-transform: capitalize; margin-top: 4px; display: block; line-height: 1.2; }
+    </style>
+</head>
+<body>
+
+    <nav class="flex justify-between items-center px-8 py-5 border-b border-gray-800 sticky top-0 bg-[#0c1412]/90 backdrop-blur-md z-[100]">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="showView('home-view')">
+            <div class="w-8 h-8 bg-[#4ade80] rounded-lg flex items-center justify-center">
+                <i class="fas fa-leaf text-[#0c1412] text-sm"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">OrganicRec</span>
+        </div>
+        <div class="flex gap-8 items-center text-sm font-medium text-gray-400">
+            <a href="#" class="hover:text-white" onclick="showView('home-view')">Home</a>
+            <div class="relative cursor-pointer p-2" onclick="toggleCartSideBar()">
+                <i class="fas fa-shopping-cart text-lg hover:text-white"></i>
+                <span id="cart-count-nav" class="absolute top-0 right-0 bg-orange-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <main id="app-container">
+        <section id="home-view" class="view">
+            <header class="mx-6 mt-6 rounded-[2.5rem] organic-gradient p-12 lg:p-20 text-center relative overflow-hidden">
+                <div class="relative z-10">
+                    <span class="bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-semibold border border-white/10">✨ 100% Certified Organic</span>
+                    <h1 class="text-5xl lg:text-7xl font-bold mt-6 mb-4 text-white">Organic Picks</h1>
+                    <p class="text-gray-100 text-lg opacity-90 mb-10 max-w-2xl mx-auto">Discover nature's finest organic products, handpicked just for you.</p>
+                    
+                    <button onclick="toggleComponent('basket-modal')" class="smart-basket-btn px-8 py-4 rounded-full flex items-center gap-3 mx-auto mb-10 shadow-lg hover:scale-105 transition">
+                        <i class="fas fa-magic"></i> Smart Basket Builder
+                    </button>
+
+                    <div class="max-w-xl mx-auto relative group">
+                        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer" onclick="document.getElementById('product-search').focus()"></i>
+                        <input id="product-search" type="text" placeholder="Search by name, category, or origin..." class="w-full bg-black/30 border border-white/10 rounded-2xl py-4 pl-14 pr-4 focus:ring-2 focus:ring-[#4ade80]/50 transition text-white">
+                    </div>
+                </div>
+            </header>
+
+            <div class="px-8 mt-10">
+                <div class="flex flex-wrap items-center justify-between gap-6 card-bg p-6 rounded-3xl">
+                    <div class="flex-1 min-w-[250px]">
+                        <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Price Range (₹0 - ₹900)</label>
+                        <input type="range" id="price-slider" min="0" max="900" value="900" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-[#4ade80]" oninput="updateFilters()">
+                    </div>
+                    <div class="w-48">
+                        <select id="sort-select" class="w-full bg-[#1a2a26] border border-gray-700 rounded-xl py-3 px-4 text-sm font-bold text-white outline-none focus:border-green-500" onchange="updateFilters()">
+                            <option value="default">Default Sorting</option>
+                            <option value="low">Price: Low → High</option>
+                            <option value="high">Price: High → Low</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-8 mt-12 flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                <div class="category-pill active px-6 py-2.5 rounded-full" onclick="filterProducts('All', this)">🌱 All</div>
+                <div class="category-pill px-6 py-2.5 rounded-full" onclick="filterProducts('Fruits & Vegetables', this)">🥦 Fruits & Veg</div>
+                <div class="category-pill px-6 py-2.5 rounded-full" onclick="filterProducts('Grains & Cereals', this)">🌾 Grains</div>
+                <div class="category-pill px-6 py-2.5 rounded-full" onclick="filterProducts('Dairy & Eggs', this)">🥛 Dairy</div>
+                <div class="category-pill px-6 py-2.5 rounded-full" onclick="filterProducts('Herbs & Spices', this)">🌿 Spices</div>
+                <div class="category-pill px-6 py-2.5 rounded-full" onclick="filterProducts('Beverages', this)">☕ Beverages</div>
+                <div class="category-pill px-6 py-2.5 rounded-full" onclick="filterProducts('Snacks', this)">🍿 Snacks</div>
+            </div>
+
+            <div class="px-8 mt-10 mb-20">
+                <h2 id="cat-display-title" class="text-2xl font-bold mb-2">All Products</h2>
+                <p id="cat-count-text" class="text-gray-500 text-sm mb-8"></p>
+                <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            </div>
+        </section>
+
+        <section id="detail-view" class="view hide px-8 py-10 max-w-7xl mx-auto">
+            <button onclick="showView('home-view')" class="text-gray-400 hover:text-white flex items-center gap-2 mb-8 group">
+                <i class="fas fa-arrow-left text-xs group-hover:-translate-x-1 transition"></i> Back to products
+            </button>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="card-bg rounded-[2.5rem] flex items-center justify-center p-20 bg-[#1a2a26]/50 cursor-default">
+                    <span id="det-emoji" class="text-[12rem] drop-shadow-2xl"></span>
+                </div>
+                <div>
+                    <span class="bg-[#4ade80]/10 text-[#4ade80] text-xs font-bold px-3 py-1 rounded-full border border-[#4ade80]/20 uppercase">🌿 Certified Organic</span>
+                    <h1 id="det-title" class="text-5xl font-bold mt-4 mb-2"></h1>
+                    <p id="det-desc" class="text-gray-400 text-lg mb-6 leading-relaxed"></p>
+                    
+                    <div id="nutrition-section" class="mb-8">
+                        <button onclick="toggleComponent('nutrition-panel')" class="w-full card-bg p-4 rounded-2xl flex items-center justify-between hover:border-green-500/50 transition">
+                            <span class="flex items-center gap-3 font-bold text-sm"><i class="fas fa-apple-alt text-red-400"></i> Nutrition Breakdown</span>
+                            <i class="fas fa-chevron-down text-gray-600"></i>
+                        </button>
+                        <div id="nutrition-panel" class="hide mt-4 card-bg rounded-2xl p-6 border-green-500/20">
+                            <div class="grid grid-cols-4 gap-3 mb-8">
+                                <div class="bg-gray-800/50 rounded-xl p-3 text-center border-t-2 border-orange-500">
+                                    <span class="block text-xl font-bold" id="nut-cal">0</span>
+                                    <span class="text-[10px] text-gray-500 uppercase">Kcal</span>
+                                </div>
+                                <div class="bg-gray-800/50 rounded-xl p-3 text-center border-t-2 border-blue-500">
+                                    <span class="block text-xl font-bold" id="nut-pro">0</span>
+                                    <span class="text-[10px] text-gray-500 uppercase">Pro</span>
+                                </div>
+                                <div class="bg-gray-800/50 rounded-xl p-3 text-center border-t-2 border-yellow-500">
+                                    <span class="block text-xl font-bold" id="nut-carb">0</span>
+                                    <span class="text-[10px] text-gray-500 uppercase">Carb</span>
+                                </div>
+                                <div class="bg-gray-800/50 rounded-xl p-3 text-center border-t-2 border-green-500">
+                                    <span class="block text-xl font-bold" id="nut-fib">0</span>
+                                    <span class="text-[10px] text-gray-500 uppercase">Fib</span>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div><div class="flex justify-between text-xs mb-1"><span>Vitamin C</span><span id="vit-c-val"></span></div><div class="progress-bar-bg"><div id="vit-c-bar" class="progress-fill"></div></div></div>
+                                <div><div class="flex justify-between text-xs mb-1"><span>Manganese</span><span id="vit-m-val"></span></div><div class="progress-bar-bg"><div id="vit-m-bar" class="progress-fill"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-6 mb-8 text-sm">
+                        <div class="flex items-center gap-2 text-orange-400 font-bold"><i class="fas fa-star"></i> <span id="det-rating"></span></div>
+                        <div class="text-gray-500 flex items-center gap-2"><i class="fas fa-map-marker-alt"></i> <span id="det-origin"></span></div>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-gray-800 pt-8">
+                        <span id="det-price" class="text-4xl font-bold text-orange-400"></span>
+                        <button id="add-btn-main" class="btn-primary px-10 py-4 rounded-2xl font-bold flex items-center gap-3"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4 mt-10">
+                        <button onclick="toggleComponent('trace-journey')" class="w-full bg-[#1a2a26] border border-gray-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-3"><i class="fas fa-map-marker-alt accent-green"></i> Trace My Food</button>
+                        <button onclick="toggleComponent('waste-recipes')" class="w-full bg-[#1a2a26] border border-gray-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-3"><i class="fas fa-recycle accent-green"></i> Zero Waste Recipes</button>
+                    </div>
+                </div>
+            </div>
+            <div id="trace-journey" class="hide mt-12 card-bg rounded-3xl p-8 cursor-default">
+                <h3 class="text-xl font-bold mb-8 flex items-center gap-3"><i class="fas fa-route accent-green"></i> Farm-to-Table — <span id="trace-country"></span></h3>
+                <div class="space-y-8 relative ml-4 border-l-2 border-gray-800">
+                    <div class="pl-10 relative"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-green-500 border-4 border-[#0c1412]"></div><p class="font-bold">Harvested</p><p class="text-xs text-gray-500">Day 1 • Organic Farm</p></div>
+                    <div class="pl-10 relative"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-green-500 border-4 border-[#0c1412]"></div><p class="font-bold">Quality Tested</p><p class="text-xs text-gray-500">Day 2 • Lab Certified</p></div>
+                    <div class="pl-10 relative"><div class="absolute -left-[11px] top-1 w-5 h-5 rounded-full bg-green-500 border-4 border-[#0c1412]"></div><p class="font-bold">Delivered</p><p class="text-xs text-gray-500">Day 5 • Your Doorstep</p></div>
+                </div>
+            </div>
+            <div id="waste-recipes" class="hide mt-8 card-bg rounded-3xl p-8 cursor-default">
+                <h3 class="text-xl font-bold mb-6 flex items-center gap-3"><i class="fas fa-seedling accent-green"></i> Zero-Waste Tip</h3>
+                <div class="bg-black/40 p-6 rounded-2xl border border-gray-800"><p class="font-bold accent-green text-lg mb-2"><span id="waste-name"></span> Leftovers</p><p class="text-gray-400 text-sm">Save any unused parts for composting to nourish your garden. Every bit counts towards zero waste! ♻️</p></div>
+            </div>
+        </section>
+        
+        <section id="checkout-view" class="view hide px-8 py-10 max-w-6xl mx-auto pb-32">
+            <div class="flex justify-center items-center gap-4 mb-12">
+                <div id="step-1-btn" class="step-active px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+                    <span id="step-1-check" class="hide"><i class="fas fa-check-circle"></i></span> 1 Cart Review
+                </div>
+                <div class="h-[1px] w-12 bg-gray-800"></div>
+                <div id="step-2-btn" class="step-inactive px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+                    <span id="step-2-check" class="hide"><i class="fas fa-check-circle"></i></span> 2 Shipping
+                </div>
+                <div class="h-[1px] w-12 bg-gray-800"></div>
+                <div id="step-3-btn" class="step-inactive px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+                    <span id="step-3-check" class="hide"><i class="fas fa-check-circle"></i></span> 3 Payment
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2 space-y-6">
+                    <div id="checkout-cart-part" class="card-bg rounded-2xl p-8 cursor-default">
+                        <h2 class="text-xl font-bold mb-8 flex items-center gap-3"><i class="fas fa-shopping-bag accent-green"></i> Your Cart (<span class="cart-total-qty">0</span> items)</h2>
+                        <div id="checkout-items-list" class="space-y-4"></div>
+                        <button onclick="goToStep(2)" class="w-full btn-primary py-4 rounded-2xl font-bold mt-10">Continue to Shipping →</button>
+                    </div>
+
+                    <div id="checkout-shipping-part" class="card-bg rounded-2xl p-8 hide cursor-default">
+                        <h2 class="text-xl font-bold mb-8 flex items-center gap-3"><i class="fas fa-truck accent-green"></i> Shipping Details</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold mb-3 flex items-center gap-2"><i class="far fa-user text-gray-400"></i> Full Name</label>
+                                <input type="text" value="Rahul Sharma" class="w-full bg-black/40 border border-gray-800 rounded-xl p-4 focus:border-green-500 text-gray-300">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold mb-3 flex items-center gap-2"><i class="far fa-envelope text-gray-400"></i> Email</label>
+                                    <input type="email" value="rahul@example.com" class="w-full bg-black/40 border border-gray-800 rounded-xl p-4 text-gray-300">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-3 flex items-center gap-2"><i class="fas fa-phone-alt text-gray-400"></i> Phone</label>
+                                    <input type="text" value="+91 98765 43210" class="w-full bg-black/40 border border-gray-800 rounded-xl p-4 text-gray-300">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-3 flex items-center gap-2"><i class="fas fa-map-marker-alt text-gray-400"></i> Address</label>
+                                <input type="text" value="123, MG Road, Indiranagar" class="w-full bg-black/40 border border-gray-800 rounded-xl p-4 text-gray-300">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold mb-3">City</label>
+                                    <input type="text" value="Bengaluru" class="w-full bg-black/40 border border-gray-800 rounded-xl p-4 text-gray-300">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-3">State</label>
+                                    <input type="text" value="Karnataka" class="w-full bg-black/40 border border-gray-800 rounded-xl p-4 text-gray-300">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-3">PIN Code</label>
+                                <input type="text" value="560001" class="w-full bg-black/40 border border-gray-800 rounded-xl p-4 text-gray-300">
+                            </div>
+                        </div>
+                        <div class="flex gap-4 mt-10">
+                            <button onclick="goToStep(1)" class="flex-1 bg-gray-900 py-4 rounded-2xl font-bold border border-gray-800">Back</button>
+                            <button onclick="goToStep(3)" class="flex-[2] btn-primary py-4 rounded-2xl font-bold">Continue to Payment →</button>
+                        </div>
+                    </div>
+
+                    <div id="checkout-payment-part" class="card-bg rounded-2xl p-8 hide cursor-default">
+                        <h2 class="text-xl font-bold mb-8 flex items-center gap-3"><i class="fas fa-credit-card accent-green"></i> Payment Method</h2>
+                        <div class="space-y-4">
+                            <label class="flex items-center justify-between p-5 border border-green-500 bg-green-500/5 rounded-2xl cursor-pointer">
+                                <div class="flex items-center gap-5">
+                                    <div class="text-2xl">💵</div>
+                                    <div>
+                                        <p class="font-bold">Cash on Delivery</p>
+                                        <p class="text-xs text-gray-500">Pay when your order arrives</p>
+                                    </div>
+                                </div>
+                                <input type="radio" name="pay-method" checked class="accent-green w-5 h-5">
+                            </label>
+                            <label class="flex items-center justify-between p-5 border border-gray-800 hover:border-gray-700 bg-black/20 rounded-2xl cursor-pointer">
+                                <div class="flex items-center gap-5">
+                                    <div class="text-2xl">📱</div>
+                                    <div>
+                                        <p class="font-bold">UPI Payment</p>
+                                        <p class="text-xs text-gray-500">GPay, PhonePe, Paytm, etc.</p>
+                                    </div>
+                                </div>
+                                <input type="radio" name="pay-method" class="accent-green w-5 h-5">
+                            </label>
+                            <label class="flex items-center justify-between p-5 border border-gray-800 hover:border-gray-700 bg-black/20 rounded-2xl cursor-pointer">
+                                <div class="flex items-center gap-5">
+                                    <div class="text-2xl">💳</div>
+                                    <div>
+                                        <p class="font-bold">Credit / Debit Card</p>
+                                        <p class="text-xs text-gray-500">Visa, Mastercard, RuPay</p>
+                                    </div>
+                                </div>
+                                <input type="radio" name="pay-method" class="accent-green w-5 h-5">
+                            </label>
+                            <label class="flex items-center justify-between p-5 border border-gray-800 hover:border-gray-700 bg-black/20 rounded-2xl cursor-pointer">
+                                <div class="flex items-center gap-5">
+                                    <div class="text-2xl">🏛️</div>
+                                    <div>
+                                        <p class="font-bold">Net Banking</p>
+                                        <p class="text-xs text-gray-500">All major Indian banks</p>
+                                    </div>
+                                </div>
+                                <input type="radio" name="pay-method" class="accent-green w-5 h-5">
+                            </label>
+                        </div>
+
+                        <div class="flex justify-center gap-6 mt-8 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                            <span><i class="fas fa-shield-alt accent-green mr-1"></i> SSL Encrypted</span>
+                            <span><i class="fas fa-check-circle accent-green mr-1"></i> 100% Safe</span>
+                        </div>
+
+                        <div class="flex gap-4 mt-10">
+                            <button onclick="goToStep(2)" class="flex-1 bg-gray-900 py-4 rounded-2xl font-bold border border-gray-800">Back</button>
+                            <button onclick="placeFinalOrder()" class="flex-[2] bg-orange-500 hover:bg-orange-600 text-black font-extrabold py-4 rounded-2xl transition">Place Order — ₹<span class="final-total">0</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="card-bg rounded-2xl p-8 sticky top-28 cursor-default">
+                        <h2 class="text-lg font-bold mb-8">Summary</h2>
+                        <div class="flex justify-between text-sm text-gray-400 mb-4"><span>Subtotal</span><span class="text-white font-bold">₹<span class="summary-subtotal">0</span></span></div>
+                        <div class="border-t border-gray-800 pt-6 flex justify-between items-center"><span class="text-xl font-bold">Total</span><span class="text-2xl font-bold text-orange-400">₹<span class="summary-total">0</span></span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="basket-modal" class="fixed inset-0 bg-black/80 z-[300] hide flex items-center justify-center p-6 backdrop-blur-sm">
+        <div class="card-bg w-full max-w-lg rounded-[2.5rem] p-10 relative cursor-default shadow-2xl">
+            <button onclick="toggleComponent('basket-modal')" class="absolute top-6 right-6 text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-bold mb-2">Smart Basket Builder</h2>
+            <p class="text-gray-500 text-sm mb-8">Auto-build your perfect basket:</p>
+            <div class="space-y-4">
+                <div onclick="autoBuild('weekly')" class="card-bg p-5 rounded-2xl hover:border-green-500 flex items-center gap-5 transition"><div class="text-3xl">🛒</div><div><p class="font-bold">Weekly Groceries</p><p class="text-xs text-gray-500">Balanced family essentials</p></div></div>
+                <div onclick="autoBuild('protein')" class="card-bg p-5 rounded-2xl hover:border-orange-500 flex items-center gap-5 transition"><div class="text-3xl">💪</div><div><p class="font-bold">Protein-Rich Diet</p><p class="text-xs text-gray-500">High-protein grains & dairy</p></div></div>
+                <div onclick="autoBuild('budget')" class="card-bg p-5 rounded-2xl hover:border-yellow-500 flex items-center gap-5 transition"><div class="text-3xl">💰</div><div><p class="font-bold">Budget Basket</p><p class="text-xs text-gray-500">Best picks under ₹150</p></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart-sidebar" class="fixed inset-0 bg-black/70 z-[200] hide backdrop-blur-sm">
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-[#0c1412] p-8 shadow-2xl border-l border-gray-800 flex flex-col">
+            <div class="flex justify-between items-center mb-10"><h2 class="text-2xl font-bold flex items-center gap-3"><i class="fas fa-shopping-bag accent-green"></i> Cart (<span class="cart-total-qty">0</span>)</h2><i onclick="toggleCartSideBar()" class="fas fa-times text-xl cursor-pointer p-2"></i></div>
+            <div id="sidebar-cart-items" class="flex-grow overflow-y-auto space-y-6 no-scrollbar"></div>
+            <div id="eco-impact-panel" class="mt-8 bg-[#1a2a26] border border-green-900/30 rounded-2xl p-6">
+                <div class="flex items-center gap-2 mb-4 text-xs font-bold accent-green uppercase tracking-widest"><i class="fas fa-leaf"></i> Your Eco Impact</div>
+                <div class="flex gap-3">
+                    <div class="eco-card"><span class="eco-value" id="impact-pest">0g</span><span class="eco-label">Pesticides</span></div>
+                    <div class="eco-card"><span class="eco-value" id="impact-plastic">0g</span><span class="eco-label">Plastic</span></div>
+                    <div class="eco-card"><span class="eco-value" id="impact-water">0L</span><span class="eco-label">Water</span></div>
+                </div>
+            </div>
+            <div class="pt-8 space-y-4">
+                <div class="flex justify-between items-center"><span class="text-gray-400">Subtotal</span><span class="text-xl font-bold">₹<span class="summary-total">0</span></span></div>
+                <button onclick="goToCheckout()" class="w-full btn-primary py-4 rounded-2xl font-bold">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-toast" class="fixed bottom-10 right-10 card-bg border-green-500 p-5 rounded-2xl shadow-2xl z-[300] flex items-center gap-4 hide">
+        <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-black"><i class="fas fa-check"></i></div>
+        <div><p class="font-bold">Order Placed!</p><p class="text-xs text-gray-400">Delivering soon.</p></div>
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: 'Organic Avocados', price: 249, emoji: '🥑', cat: 'Fruits & Vegetables', origin: 'Mexico', rating: 4.8, desc: 'Creamy, nutrient-rich avocados.', benefits: ['Healthy fats'], cal: 160, pro: 2, carb: 9, fib: 7, vitC: 17, mn: 10 },
+            { id: 2, name: 'Wild Blueberries', price: 399, emoji: '🫐', cat: 'Fruits & Vegetables', origin: 'Peru', rating: 4.9, desc: 'Wild antioxidants.', benefits: ['Vitamin C'], cal: 57, pro: 0.7, carb: 14, fib: 2.4, vitC: 16, mn: 20 },
+            { id: 3, name: 'Organic Kale', price: 79, emoji: '🥬', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.4, desc: 'Leafy green powerhouse.', benefits: ['Iron'], cal: 33, pro: 2.9, carb: 6, fib: 1.3, vitC: 120, mn: 25 },
+            { id: 4, name: 'Amla', price: 129, emoji: '🍏', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.7, desc: 'Highest Vitamin C.', benefits: ['Immunity'], cal: 44, pro: 0.8, carb: 10, fib: 4.3, vitC: 600, mn: 5 },
+            { id: 5, name: 'Bananas', price: 49, emoji: '🍌', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.5, desc: 'Naturally ripened.', benefits: ['Potassium'], cal: 89, pro: 1.1, carb: 23, fib: 2.6, vitC: 10, mn: 15 },
+            { id: 6, name: 'Pomegranate', price: 189, emoji: '🍎', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.6, desc: 'Ruby red seeds.', benefits: ['Antioxidants'], cal: 83, pro: 1.7, carb: 19, fib: 4, vitC: 17, mn: 6 },
+            { id: 7, name: 'Spinach', price: 39, emoji: '🥗', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.3, desc: 'Farm fresh.', benefits: ['Iron'], cal: 23, pro: 2.9, carb: 3.6, fib: 2.2, vitC: 47, mn: 45 },
+            { id: 8, name: 'Mangoes', price: 599, emoji: '🥭', cat: 'Fruits & Vegetables', origin: 'Ratnagiri', rating: 4.9, desc: 'Premium Alphonso.', benefits: ['Sweet'], cal: 60, pro: 0.8, carb: 15, fib: 1.6, vitC: 60, mn: 8 },
+            { id: 9, name: 'Quinoa Grain', price: 349, emoji: '🌾', cat: 'Grains & Cereals', origin: 'Peru', rating: 4.7, desc: 'Complete protein.', benefits: ['Gluten-free'], cal: 120, pro: 4.4, carb: 21, fib: 2.8, vitC: 0, mn: 40 },
+            { id: 10, name: 'Chia Seeds', price: 299, emoji: '🥣', cat: 'Grains & Cereals', origin: 'Mexico', rating: 4.8, desc: 'Omega-3 rich.', benefits: ['Fiber'], cal: 486, pro: 17, carb: 42, fib: 34, vitC: 0, mn: 100 },
+            { id: 11, name: 'Ragi Flour', price: 139, emoji: '🍚', cat: 'Grains & Cereals', origin: 'India', rating: 4.5, desc: 'Calcium rich.', benefits: ['Gluten-free'], cal: 328, pro: 7.3, carb: 72, fib: 11, vitC: 0, mn: 35 },
+            { id: 12, name: 'Jowar Flour', price: 119, emoji: '🌾', cat: 'Grains & Cereals', origin: 'India', rating: 4.4, desc: 'Sorghum staple.', benefits: ['Low GI'], cal: 349, pro: 10.4, carb: 72, fib: 6.7, vitC: 0, mn: 30 },
+            { id: 13, name: 'Brown Rice', price: 179, emoji: '🍚', cat: 'Grains & Cereals', origin: 'India', rating: 4.5, desc: 'Unpolished.', benefits: ['Fiber'], cal: 111, pro: 2.6, carb: 23, fib: 1.8, vitC: 0, mn: 45 },
+            { id: 14, name: 'Flax Seeds', price: 199, emoji: '🌻', cat: 'Grains & Cereals', origin: 'India', rating: 4.6, desc: 'Heart healthy.', benefits: ['Lignans'], cal: 534, pro: 18, carb: 29, fib: 27, vitC: 1, mn: 120 },
+            { id: 15, name: 'Free-Range Eggs', price: 149, emoji: '🥚', cat: 'Dairy & Eggs', origin: 'India', rating: 4.6, desc: 'Pasture raised.', benefits: ['Protein'], cal: 155, pro: 13, carb: 1.1, fib: 0, vitC: 0, mn: 2 },
+            { id: 16, name: 'Greek Yogurt', price: 199, emoji: '🥛', cat: 'Dairy & Eggs', origin: 'India', rating: 4.7, desc: 'Creamy probiotic.', benefits: ['Probiotic'], cal: 59, pro: 10, carb: 3.6, fib: 0, vitC: 0, mn: 1 },
+            { id: 17, name: 'A2 Cow Ghee', price: 649, emoji: '🍯', cat: 'Dairy & Eggs', origin: 'India', rating: 4.9, desc: 'Bilona method.', benefits: ['Healthy fats'], cal: 883, pro: 0, carb: 0, fib: 0, vitC: 0, mn: 0 },
+            { id: 18, name: 'Organic Paneer', price: 249, emoji: '🧀', cat: 'Dairy & Eggs', origin: 'India', rating: 4.5, desc: 'Fresh cottage cheese.', benefits: ['Protein'], cal: 265, pro: 18, carb: 1.2, fib: 0, vitC: 0, mn: 1 },
+            { id: 19, name: 'Organic Dahi', price: 79, emoji: '🥣', cat: 'Dairy & Eggs', origin: 'India', rating: 4.6, desc: 'Natural probiotic.', benefits: ['Gut health'], cal: 61, pro: 3.5, carb: 4.7, fib: 0, vitC: 0, mn: 0 },
+            { id: 20, name: 'Buffalo Milk', price: 89, emoji: '🥛', cat: 'Dairy & Eggs', origin: 'India', rating: 4.4, desc: 'Rich & thick.', benefits: ['Calcium'], cal: 97, pro: 3.7, carb: 5, fib: 0, vitC: 2, mn: 0 },
+            { id: 21, name: 'Turmeric Root', price: 89, emoji: '🫚', cat: 'Herbs & Spices', origin: 'India', rating: 4.8, desc: 'Anti-inflammatory.', benefits: ['Curcumin'], cal: 354, pro: 8, carb: 65, fib: 21, vitC: 43, mn: 300 },
+            { id: 22, name: 'Moringa Powder', price: 199, emoji: '🌿', cat: 'Herbs & Spices', origin: 'India', rating: 4.8, desc: 'Green superfood.', benefits: ['Energy'], cal: 64, pro: 9.4, carb: 8.2, fib: 2, vitC: 51, mn: 15 },
+            { id: 23, name: 'Ashwagandha', price: 249, emoji: '🪴', cat: 'Herbs & Spices', origin: 'India', rating: 4.7, desc: 'Stress relief.', benefits: ['Immunity'], cal: 245, pro: 3.9, carb: 49, fib: 32, vitC: 0, mn: 10 },
+            { id: 24, name: 'Black Pepper', price: 149, emoji: '🌶️', cat: 'Herbs & Spices', origin: 'India', rating: 4.5, desc: 'Sun-dried.', benefits: ['Metabolism'], cal: 251, pro: 10, carb: 64, fib: 25, vitC: 0, mn: 200 },
+            { id: 25, name: 'Cinnamon Sticks', price: 179, emoji: '🪵', cat: 'Herbs & Spices', origin: 'Sri Lanka', rating: 4.7, desc: 'True Ceylon.', benefits: ['Blood sugar'], cal: 247, pro: 4, carb: 81, fib: 53, vitC: 6, mn: 800 },
+            { id: 26, name: 'Triphala Powder', price: 169, emoji: '🍀', cat: 'Herbs & Spices', origin: 'India', rating: 4.6, desc: 'Ayurvedic detox.', benefits: ['Digestion'], cal: 210, pro: 2, carb: 45, fib: 30, vitC: 40, mn: 15 },
+            { id: 27, name: 'Matcha Tea', price: 599, emoji: '🍵', cat: 'Beverages', origin: 'Japan', rating: 4.9, desc: 'Ceremonial grade.', benefits: ['Antioxidant'], cal: 3, pro: 0.5, carb: 0.5, fib: 0, vitC: 10, mn: 20 },
+            { id: 28, name: 'Chamomile Tea', price: 179, emoji: '🌼', cat: 'Beverages', origin: 'India', rating: 4.6, desc: 'Sleep support.', benefits: ['Relaxation'], cal: 1, pro: 0, carb: 0.2, fib: 0, vitC: 0, mn: 2 },
+            { id: 29, name: 'Tulsi Green Tea', price: 219, emoji: '🍃', cat: 'Beverages', origin: 'India', rating: 4.7, desc: 'Immunity tea.', benefits: ['Stress help'], cal: 2, pro: 0, carb: 0, fib: 0, vitC: 5, mn: 10 },
+            { id: 30, name: 'Filter Coffee', price: 349, emoji: '☕', cat: 'Beverages', origin: 'India', rating: 4.8, desc: 'Arabica roast.', benefits: ['Caffeine'], cal: 0, pro: 0.1, carb: 0, fib: 0, vitC: 0, mn: 1 },
+            { id: 31, name: 'Coconut Water', price: 59, emoji: '🥥', cat: 'Beverages', origin: 'India', rating: 4.5, desc: 'Tender water.', benefits: ['Electrolytes'], cal: 19, pro: 0.7, carb: 3.7, fib: 1.1, vitC: 4, mn: 7 },
+            { id: 32, name: 'Lemongrass Tea', price: 159, emoji: '🍋', cat: 'Beverages', origin: 'India', rating: 4.4, desc: 'Citrus digest.', benefits: ['Digestion'], cal: 1, pro: 0, carb: 0, fib: 0, vitC: 2, mn: 4 },
+            { id: 33, name: 'Raw Almonds', price: 449, emoji: '🥜', cat: 'Snacks', origin: 'India', rating: 4.6, desc: 'Buttery crunch.', benefits: ['Vitamin E'], cal: 579, pro: 21, carb: 22, fib: 12, vitC: 0, mn: 110 },
+            { id: 34, name: 'Dark Chocolate', price: 199, emoji: '🍫', cat: 'Snacks', origin: 'India', rating: 4.7, desc: '85% Cacao.', benefits: ['Mood boost'], cal: 598, pro: 8, carb: 46, fib: 11, vitC: 0, mn: 95 },
+            { id: 35, name: 'Organic Jaggery', price: 159, emoji: '🍯', cat: 'Snacks', origin: 'India', rating: 4.6, desc: 'Unrefined cane.', benefits: ['Minerals'], cal: 383, pro: 0.4, carb: 98, fib: 0, vitC: 0, mn: 5 },
+            { id: 36, name: 'Organic Honey', price: 399, emoji: '🍯', cat: 'Snacks', origin: 'India', rating: 4.8, desc: 'Raw forest honey.', benefits: ['Antiseptic'], cal: 304, pro: 0.3, carb: 82, fib: 0, vitC: 1, mn: 2 },
+            { id: 37, name: 'Organic Cashews', price: 549, emoji: '🥜', cat: 'Snacks', origin: 'India', rating: 4.7, desc: 'Roasted W240.', benefits: ['Heart health'], cal: 553, pro: 18, carb: 30, fib: 3.3, vitC: 1, mn: 83 },
+            { id: 38, name: 'Organic Dates', price: 499, emoji: '🫘', cat: 'Snacks', origin: 'India', rating: 4.8, desc: 'Soft Medjool.', benefits: ['Fiber'], cal: 277, pro: 1.8, carb: 75, fib: 6.7, vitC: 0, mn: 15 },
+            { id: 39, name: 'Pumpkin Seeds', price: 299, emoji: '🎃', cat: 'Snacks', origin: 'India', rating: 4.5, desc: 'Zinc rich.', benefits: ['Immunity'], cal: 559, pro: 30, carb: 11, fib: 6, vitC: 3, mn: 200 },
+            { id: 40, name: 'Makhana', price: 219, emoji: '⚪', cat: 'Snacks', origin: 'India', rating: 4.6, desc: 'Light superfood.', benefits: ['Zero fat'], cal: 347, pro: 9.7, carb: 76, fib: 14, vitC: 0, mn: 10 },
+            { id: 41, name: 'Dragon Fruit', price: 199, emoji: '🌵', cat: 'Fruits & Vegetables', origin: 'Vietnam', rating: 4.7, desc: 'Pink pitaya.', benefits: ['Magnesium'], cal: 60, pro: 1.2, carb: 13, fib: 3, vitC: 15, mn: 8 },
+            { id: 42, name: 'Kiwi Gold', price: 299, emoji: '🥝', cat: 'Fruits & Vegetables', origin: 'New Zealand', rating: 4.8, desc: 'Sweet kiwi.', benefits: ['Vitamin C'], cal: 61, pro: 1.1, carb: 15, fib: 3, vitC: 150, mn: 5 },
+            { id: 43, name: 'Bell Peppers', price: 160, emoji: '🫑', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.5, desc: 'Organic peppers.', benefits: ['Immunity'], cal: 31, pro: 1, carb: 6, fib: 2.1, vitC: 210, mn: 6 },
+            { id: 44, name: 'Broccoli', price: 120, emoji: '🥦', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.6, desc: 'Fresh florets.', benefits: ['Fiber'], cal: 34, pro: 2.8, carb: 7, fib: 2.6, vitC: 148, mn: 10 },
+            { id: 45, name: 'Sweet Potato', price: 80, emoji: '🍠', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.4, desc: 'Orange tubers.', benefits: ['Vitamin A'], cal: 86, pro: 1.6, carb: 20, fib: 3, vitC: 4, mn: 13 },
+            { id: 46, name: 'Asparagus', price: 250, emoji: '🥗', cat: 'Fruits & Vegetables', origin: 'Mexico', rating: 4.3, desc: 'Green spears.', benefits: ['Folate'], cal: 20, pro: 2.2, carb: 3.9, fib: 2.1, vitC: 10, mn: 8 },
+            { id: 47, name: 'Baby Corn', price: 65, emoji: '🌽', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.2, desc: 'Crunchy ears.', benefits: ['Low fat'], cal: 26, pro: 2, carb: 5, fib: 1.5, vitC: 5, mn: 4 },
+            { id: 48, name: 'Strawberries', price: 350, emoji: '🍓', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.9, desc: 'Red berries.', benefits: ['Vitamin C'], cal: 33, pro: 0.7, carb: 8, fib: 2, vitC: 97, mn: 19 },
+            { id: 49, name: 'Cherry Tomato', price: 95, emoji: '🍅', cat: 'Fruits & Vegetables', origin: 'India', rating: 4.7, desc: 'Sweet bursts.', benefits: ['Lycopene'], cal: 18, pro: 0.9, carb: 3.9, fib: 1.2, vitC: 22, mn: 5 },
+            { id: 50, name: 'Raspberries', price: 450, emoji: '🍧', cat: 'Fruits & Vegetables', origin: 'Imports', rating: 4.8, desc: 'Fine berries.', benefits: ['Fiber'], cal: 52, pro: 1.2, carb: 12, fib: 6.5, vitC: 44, mn: 33 },
+            { id: 51, name: 'Bajra', price: 99, emoji: '🌾', cat: 'Grains & Cereals', origin: 'India', rating: 4.4, desc: 'Pearl millet.', benefits: ['Iron'], cal: 361, pro: 11.6, carb: 67, fib: 8.5, vitC: 0, mn: 20 },
+            { id: 52, name: 'Red Rice', price: 145, emoji: '🍚', cat: 'Grains & Cereals', origin: 'Bhutan', rating: 4.6, desc: 'Unpolished.', benefits: ['Manganese'], cal: 109, pro: 2.3, carb: 23, fib: 1.8, vitC: 0, mn: 40 },
+            { id: 53, name: 'Oats', price: 199, emoji: '🥣', cat: 'Grains & Cereals', origin: 'Australia', rating: 4.5, desc: 'Steel cut.', benefits: ['Heart health'], cal: 389, pro: 16.9, carb: 66, fib: 10.6, vitC: 0, mn: 246 },
+            { id: 54, name: 'Buckwheat', price: 180, emoji: '🥞', cat: 'Grains & Cereals', origin: 'India', rating: 4.3, desc: 'Pseudo cereal.', benefits: ['Gluten free'], cal: 343, pro: 13, carb: 71, fib: 10, vitC: 0, mn: 65 },
+            { id: 55, name: 'Amaranth', price: 110, emoji: '🌱', cat: 'Grains & Cereals', origin: 'India', rating: 4.7, desc: 'Ancient grain.', benefits: ['Protein'], cal: 103, pro: 3.8, carb: 19, fib: 2.1, vitC: 0, mn: 105 },
+            { id: 56, name: 'Black Rice', price: 299, emoji: '🍙', cat: 'Grains & Cereals', origin: 'Manipur', rating: 4.9, desc: 'Forbidden rice.', benefits: ['Anthocyanins'], cal: 335, pro: 8.5, carb: 72, fib: 4.9, vitC: 0, mn: 50 },
+            { id: 57, name: 'Sorghum Flakes', price: 155, emoji: '🥣', cat: 'Grains & Cereals', origin: 'India', rating: 4.2, desc: 'Millet flakes.', benefits: ['Fiber'], cal: 329, pro: 10.6, carb: 72, fib: 6.7, vitC: 0, mn: 25 },
+            { id: 58, name: 'Barnyard Millet', price: 125, emoji: '🌾', cat: 'Grains & Cereals', origin: 'India', rating: 4.4, desc: 'Barnyard variety.', benefits: ['Low calorie'], cal: 307, pro: 6.2, carb: 65, fib: 9.8, vitC: 0, mn: 18 },
+            { id: 59, name: 'Goat Milk', price: 180, emoji: '🥛', cat: 'Dairy & Eggs', origin: 'India', rating: 4.3, desc: 'Alternative milk.', benefits: ['Digestible'], cal: 69, pro: 3.6, carb: 4.5, fib: 0, vitC: 2, mn: 0 },
+            { id: 60, name: 'Salted Butter', price: 275, emoji: '🧈', cat: 'Dairy & Eggs', origin: 'India', rating: 4.6, desc: 'Grass fed.', benefits: ['Natural fats'], cal: 717, pro: 0.9, carb: 0.1, fib: 0, vitC: 0, mn: 0 },
+            { id: 61, name: 'Feta Cheese', price: 399, emoji: '🧀', cat: 'Dairy & Eggs', origin: 'Greece', rating: 4.7, desc: 'Brined curd.', benefits: ['Protein'], cal: 264, pro: 14, carb: 4.1, fib: 0, vitC: 0, mn: 1 },
+            { id: 62, name: 'Kefir', price: 220, emoji: '🥛', cat: 'Dairy & Eggs', origin: 'India', rating: 4.8, desc: 'Probiotic drink.', benefits: ['Gut health'], cal: 43, pro: 3.3, carb: 4.8, fib: 0, vitC: 1, mn: 0 },
+            { id: 63, name: 'Quail Eggs', price: 120, emoji: '🥚', cat: 'Dairy & Eggs', origin: 'India', rating: 4.5, desc: 'Nutrient dense.', benefits: ['Vitamin B12'], cal: 158, pro: 13, carb: 0.4, fib: 0, vitC: 0, mn: 3 },
+            { id: 64, name: 'Saffron', price: 499, emoji: '🌸', cat: 'Herbs & Spices', origin: 'Kashmir', rating: 4.9, desc: 'Grade A threads.', benefits: ['Mood boost'], cal: 310, pro: 11, carb: 65, fib: 3.9, vitC: 135, mn: 1400 },
+            { id: 65, name: 'Cardamom', price: 350, emoji: '🌿', cat: 'Herbs & Spices', origin: 'Kerala', rating: 4.8, desc: 'Green pods.', benefits: ['Breath fresh'], cal: 311, pro: 11, carb: 68, fib: 28, vitC: 35, mn: 1400 },
+            { id: 66, name: 'Star Anise', price: 140, emoji: '🌟', cat: 'Herbs & Spices', origin: 'India', rating: 4.4, desc: 'Exotic spice.', benefits: ['Antiviral'], cal: 337, pro: 18, carb: 50, fib: 15, vitC: 35, mn: 100 },
+            { id: 67, name: 'Cloves', price: 190, emoji: '📍', cat: 'Herbs & Spices', origin: 'India', rating: 4.5, desc: 'Flower buds.', benefits: ['Pain relief'], cal: 274, pro: 6, carb: 66, fib: 34, vitC: 0, mn: 3000 },
+            { id: 68, name: 'Nutmeg', price: 120, emoji: '🥥', cat: 'Herbs & Spices', origin: 'India', rating: 4.2, desc: 'Warm spice.', benefits: ['Brain health'], cal: 525, pro: 5.8, carb: 49, fib: 21, vitC: 5, mn: 145 },
+            { id: 69, name: 'Tulsi Leaves', price: 45, emoji: '🍃', cat: 'Herbs & Spices', origin: 'India', rating: 4.7, desc: 'Holy basil.', benefits: ['Stress'], cal: 23, pro: 3, carb: 2.7, fib: 1.6, vitC: 30, mn: 10 },
+            { id: 70, name: 'Ginger Root', price: 55, emoji: '🫚', cat: 'Herbs & Spices', origin: 'India', rating: 4.6, desc: 'Zesty root.', benefits: ['Digestion'], cal: 80, pro: 1.8, carb: 18, fib: 2, vitC: 8, mn: 11 },
+            { id: 71, name: 'Hibiscus Tea', price: 250, emoji: '🌺', cat: 'Beverages', origin: 'Egypt', rating: 4.6, desc: 'Tart red tea.', benefits: ['Pressure'], cal: 37, pro: 0.4, carb: 7, fib: 0.3, vitC: 12, mn: 20 },
+            { id: 72, name: 'Cold Brew', price: 180, emoji: '🧊', cat: 'Beverages', origin: 'India', rating: 4.7, desc: 'Smooth coffee.', benefits: ['Caffeine'], cal: 2, pro: 0.1, carb: 0, fib: 0, vitC: 0, mn: 1 },
+            { id: 73, name: 'Soy Milk', price: 145, emoji: '🥛', cat: 'Beverages', origin: 'India', rating: 4.1, desc: 'Vegan milk.', benefits: ['Protein'], cal: 54, pro: 3.3, carb: 6, fib: 0.6, vitC: 0, mn: 8 },
+            { id: 74, name: 'Kombucha', price: 210, emoji: '🍾', cat: 'Beverages', origin: 'India', rating: 4.8, desc: 'Fermented tea.', benefits: ['Probiotics'], cal: 15, pro: 0, carb: 4, fib: 0, vitC: 2, mn: 5 },
+            { id: 75, name: 'Peppermint Tea', price: 199, emoji: '🍃', cat: 'Beverages', origin: 'India', rating: 4.5, desc: 'Cooling tea.', benefits: ['Stomach'], cal: 1, pro: 0, carb: 0.2, fib: 0, vitC: 0, mn: 2 },
+            { id: 76, name: 'Pistachios', price: 650, emoji: '🥜', cat: 'Snacks', origin: 'Iran', rating: 4.7, desc: 'Roasted green.', benefits: ['Eye health'], cal: 562, pro: 20, carb: 28, fib: 10, vitC: 9, mn: 60 },
+            { id: 77, name: 'Dried Figs', price: 320, emoji: '🥯', cat: 'Snacks', origin: 'Afghanistan', rating: 4.6, desc: 'Sun dried.', benefits: ['Fiber'], cal: 249, pro: 3.3, carb: 64, fib: 9.8, vitC: 2, mn: 25 },
+            { id: 78, name: 'Walnuts', price: 899, emoji: '🧠', cat: 'Snacks', origin: 'Kashmir', rating: 4.9, desc: 'Brain kernels.', benefits: ['Omega-3'], cal: 654, pro: 15, carb: 14, fib: 7, vitC: 2, mn: 95 },
+            { id: 79, name: 'Brazil Nuts', price: 750, emoji: '🥥', cat: 'Snacks', origin: 'Brazil', rating: 4.5, desc: 'Selenium rich.', benefits: ['Thyroid'], cal: 656, pro: 14, carb: 12, fib: 7.5, vitC: 1, mn: 61 },
+            { id: 80, name: 'Banana Chips', price: 120, emoji: '🍌', cat: 'Snacks', origin: 'India', rating: 4.8, desc: 'Coconut fried.', benefits: ['Energy'], cal: 519, pro: 2.3, carb: 58, fib: 7.7, vitC: 5, mn: 8 },
+            { id: 81, name: 'Apricots', price: 280, emoji: '🍑', cat: 'Snacks', origin: 'Turkey', rating: 4.4, desc: 'Soft orange.', benefits: ['Skin health'], cal: 48, pro: 1.4, carb: 11, fib: 2, vitC: 17, mn: 4 },
+            { id: 82, name: 'Chickpeas', price: 90, emoji: '🫘', cat: 'Snacks', origin: 'India', rating: 4.3, desc: 'Roasted protein.', benefits: ['Weight loss'], cal: 364, pro: 19, carb: 61, fib: 17, vitC: 7, mn: 50 },
+            { id: 83, name: 'Raisins', price: 150, emoji: '🍇', cat: 'Snacks', origin: 'India', rating: 4.2, desc: 'Dried grapes.', benefits: ['Digestion'], cal: 299, pro: 3.1, carb: 79, fib: 3.7, vitC: 4, mn: 15 }
+        ];
+
+        let cart = [];
+        let currentFilter = 'All';
+
+        function updateFilters() {
+            const query = document.getElementById('product-search').value.toLowerCase();
+            const priceLimit = parseInt(document.getElementById('price-slider').value);
+            const sortOrder = document.getElementById('sort-select').value;
+
+            let filtered = products.filter(p => 
+                (currentFilter === 'All' || p.cat === currentFilter) &&
+                (p.name.toLowerCase().includes(query) || p.origin.toLowerCase().includes(query)) &&
+                p.price <= priceLimit
+            );
+
+            if(sortOrder === 'low') filtered.sort((a,b) => a.price - b.price);
+            if(sortOrder === 'high') filtered.sort((a,b) => b.price - a.price);
+
+            renderGrid(filtered);
+        }
+
+        document.getElementById('product-search').addEventListener('input', updateFilters);
+
+        function showView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hide'));
+            document.getElementById(id).classList.remove('hide');
+            window.scrollTo(0,0);
+        }
+
+        function filterProducts(cat, el) {
+            document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            currentFilter = cat;
+            document.getElementById('cat-display-title').innerText = cat;
+            updateFilters();
+        }
+
+        function renderGrid(list) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+            list.forEach(p => {
+                grid.innerHTML += `<div class="card-bg rounded-[2rem] p-6 relative" onclick="openProduct(${p.id})"><div class="bg-[#1a2a26]/30 rounded-2xl h-48 flex items-center justify-center text-7xl mb-6 relative"><span class="absolute top-4 left-4 bg-[#4ade80]/10 text-[#4ade80] text-[9px] font-bold px-2 py-0.5 rounded border border-[#4ade80]/20 uppercase">Organic</span><span class="hover:scale-110 transition duration-500 cursor-pointer">${p.emoji}</span></div><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg leading-tight">${p.name}</h3><span class="text-orange-400 font-bold">₹${p.price}</span></div><p class="text-gray-500 text-[11px] line-clamp-2 mb-6">${p.desc}</p><div class="flex justify-between items-center border-t border-gray-800 pt-4"><div class="flex items-center gap-1.5 text-orange-400 text-xs font-bold"><i class="fas fa-star"></i> ${p.rating}</div><button onclick="event.stopPropagation(); addToCart(${p.id})" class="accent-green text-sm font-bold flex items-center gap-2 hover:opacity-80 transition"><i class="fas fa-shopping-cart"></i> Add</button></div></div>`;
+            });
+            document.getElementById('cat-count-text').innerText = `${list.length} products available`;
+        }
+
+        function openProduct(id) {
+            const p = products.find(x => x.id === id);
+            document.getElementById('det-emoji').innerText = p.emoji;
+            document.getElementById('det-title').innerText = p.name;
+            document.getElementById('det-desc').innerText = p.desc;
+            document.getElementById('det-rating').innerText = p.rating;
+            document.getElementById('det-origin').innerText = p.origin;
+            document.getElementById('det-price').innerText = `₹${p.price}.00`;
+            
+            document.getElementById('nut-cal').innerText = p.cal;
+            document.getElementById('nut-pro').innerText = p.pro + 'g';
+            document.getElementById('nut-carb').innerText = p.carb + 'g';
+            document.getElementById('nut-fib').innerText = p.fib + 'g';
+            
+            document.getElementById('vit-c-val').innerText = p.vitC + '%';
+            document.getElementById('vit-c-bar').style.width = Math.min(p.vitC, 100) + '%';
+            document.getElementById('vit-m-val').innerText = p.mn + '%';
+            document.getElementById('vit-m-bar').style.width = Math.min(p.mn, 100) + '%';
+
+            document.getElementById('add-btn-main').onclick = () => addToCart(p.id);
+            document.getElementById('trace-country').innerText = p.origin;
+            document.getElementById('waste-name').innerText = p.name;
+            showView('detail-view');
+        }
+
+        function toggleComponent(id) { document.getElementById(id).classList.toggle('hide'); }
+        function toggleCartSideBar() { document.getElementById('cart-sidebar').classList.toggle('hide'); }
+
+        function addToCart(id) {
+            const p = products.find(x => x.id === id);
+            const exists = cart.find(x => x.id === id);
+            if(exists) exists.qty++; else cart.push({...p, qty: 1});
+            updateCartUI();
+        }
+
+        function updateCartQty(id, delta) {
+            const item = cart.find(x => x.id === id);
+            item.qty += delta;
+            if(item.qty <= 0) cart = cart.filter(x => x.id !== id);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const count = cart.reduce((s, i) => s + i.qty, 0);
+            const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+            document.getElementById('cart-count-nav').innerText = count;
+            document.querySelectorAll('.cart-total-qty').forEach(el => el.innerText = count);
+            document.querySelectorAll('.summary-subtotal, .summary-total, .final-total').forEach(el => el.innerText = subtotal);
+            
+            document.getElementById('impact-pest').innerText = (count * 12) + 'g';
+            document.getElementById('impact-plastic').innerText = (count * 25) + 'g';
+            document.getElementById('impact-water').innerText = (count * 50) + 'L';
+            
+            const sb = document.getElementById('sidebar-cart-items'); sb.innerHTML = '';
+            cart.forEach(i => {
+                sb.innerHTML += `
+                    <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                        <div class="flex items-center gap-4">
+                            <span class="text-3xl bg-[#1a2a26] p-3 rounded-xl">${i.emoji}</span>
+                            <div><p class="font-bold text-sm">${i.name}</p><p class="text-orange-400 font-bold text-xs">₹${i.price}</p></div>
+                        </div>
+                        <div class="flex items-center bg-gray-900 rounded-lg px-2">
+                            <button onclick="updateCartQty(${i.id},-1)" class="p-2 text-gray-500">-</button>
+                            <span class="px-2 font-bold text-xs">${i.qty}</span>
+                            <button onclick="updateCartQty(${i.id},1)" class="p-2 text-gray-500">+</button>
+                        </div>
+                    </div>`;
+            });
+            const cl = document.getElementById('checkout-items-list'); cl.innerHTML = '';
+            cart.forEach(i => {
+                cl.innerHTML += `<div class="flex items-center justify-between bg-black/20 p-4 rounded-xl border border-gray-800"><div class="flex items-center gap-4"><span class="text-3xl">${i.emoji}</span><div><p class="font-bold">${i.name}</p></div></div><div class="flex items-center bg-gray-900 rounded-lg"><button onclick="updateCartQty(${i.id},-1)" class="p-2 px-3">-</button><span class="font-bold">${i.qty}</span><button onclick="updateCartQty(${i.id},1)" class="p-2 px-3">+</button></div></div>`;
+            });
+        }
+
+        function autoBuild(type) {
+            cart = [];
+            if(type === 'weekly') [1, 5, 13, 15, 21, 36].forEach(id => addToCart(id));
+            else if(type === 'protein') [9, 10, 15, 16, 18, 33, 82].forEach(id => addToCart(id));
+            else if(type === 'budget') products.filter(p => p.price <= 150).slice(0, 8).forEach(p => addToCart(p.id));
+            toggleComponent('basket-modal');
+            toggleCartSideBar();
+        }
+
+        function goToCheckout() { if(cart.length === 0) return alert("Cart empty"); toggleCartSideBar(); showView('checkout-view'); goToStep(1); }
+        
+        function goToStep(s) {
+            document.querySelectorAll('[id$="-part"]').forEach(p => p.classList.add('hide'));
+            document.querySelectorAll('[id$="-btn"]').forEach(b => b.className = 'step-inactive px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2');
+            
+            // Checkmark logic based on screenshot
+            document.getElementById('step-1-check').classList.toggle('hide', s < 2);
+            document.getElementById('step-2-check').classList.toggle('hide', s < 3);
+
+            if(s===1) { 
+                document.getElementById('checkout-cart-part').classList.remove('hide'); 
+                document.getElementById('step-1-btn').className = 'step-active px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2'; 
+            }
+            else if(s===2) { 
+                document.getElementById('checkout-shipping-part').classList.remove('hide'); 
+                document.getElementById('step-2-btn').className = 'step-active px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2'; 
+            }
+            else { 
+                document.getElementById('checkout-payment-part').classList.remove('hide'); 
+                document.getElementById('step-3-btn').className = 'step-active px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2'; 
+            }
+            window.scrollTo(0,0);
+        }
+
+        function placeFinalOrder() {
+            const toast = document.getElementById('success-toast');
+            toast.classList.remove('hide'); toast.classList.add('toast-animate');
+            setTimeout(() => { toast.classList.add('hide'); cart = []; updateCartUI(); showView('home-view'); }, 3000);
+        }
+
+        updateFilters();
+    </script>
+</body>
+</html>
